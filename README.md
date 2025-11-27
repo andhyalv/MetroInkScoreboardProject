@@ -18,7 +18,7 @@ This repository contains:
 
 1. Prepare Raspberry Pi: Install Pi OS, enable SSH.
    ```bash, sudo systemctl enable ssh sudo systemctl start ssh
-```
+
 2. Connect to Travel Router (or other Private Network).
 3. Update The System:
    ```bash,sudo apt update \&\& sudo apt upgrade -y sudo apt install python3-pip git -y
