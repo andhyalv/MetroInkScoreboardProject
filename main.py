@@ -6,13 +6,19 @@ import paramiko
 from scp import SCPClient
 import argparse
 import datetime
+import tempfile
+import platform
 
 # =========================
 # SSH SETTINGS (EDIT ONLY THESE)
 # =========================
 WINDOWS_IP = "192.168.8.131"
 WINDOWS_USER = "andhy"
-WINDOWS_DEST_FOLDER = r"C:/ScoreboardScreenshots/station_a"
+
+# Dynamically build the destination folder on Windows
+WINDOWS_DEST_FOLDER = os.path.join(
+    os.environ["USERPROFILE"], "MetroInkScoreboardProject", "ScoreboardScreenshots", "station_a"
+)
 
 # =========================
 # Parse filename sent by API server
@@ -23,10 +29,10 @@ args = parser.parse_args()
 initial_filename = args.filename
 event_abbr = initial_filename.split("_")[0]
 
-# Universal home directory
+# =========================
+# Universal home directory and project folder
+# =========================
 HOME = os.path.expanduser("~")
-
-# Project folder (everything inside one folder)
 PROJECT_FOLDER = os.path.join(HOME, "MetroInkScoreboardProject")
 
 # =========================
@@ -34,7 +40,6 @@ PROJECT_FOLDER = os.path.join(HOME, "MetroInkScoreboardProject")
 # =========================
 REFERENCE_IMAGE_PATH = os.path.join(PROJECT_FOLDER, "scoreboard_reference.jpg")
 reference_img = cv2.imread(REFERENCE_IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
-
 if reference_img is None:
     print("❌ Missing scoreboard_reference.jpg at:", REFERENCE_IMAGE_PATH)
     exit()
@@ -89,7 +94,7 @@ if capture is None:
 capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
-STATION_NAME = os.uname().nodename  # auto uses hostname
+STATION_NAME = platform.node()  # auto uses hostname
 print(f"🚀 Detection running on {STATION_NAME}")
 
 last_check = time.time()
@@ -117,7 +122,7 @@ while True:
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             filename = f"{event_abbr}_{timestamp}.png"
 
-            local_path = os.path.join("/tmp", filename)
+            local_path = os.path.join(tempfile.gettempdir(), filename)
             cv2.imwrite(local_path, cropped)
             upload_to_windows(local_path)
             os.remove(local_path)
