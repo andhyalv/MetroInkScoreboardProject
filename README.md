@@ -47,7 +47,7 @@ Activate it
 7. change the config.json script to match the id's of this station.
 
 
-SSH from Central (Windows) to Pi.
+SSH from Central (Windows) to Pi. IF your key is already established, skip to step 4.
 
 1. Open Powershell and run
 
@@ -65,25 +65,11 @@ SSH from Central (Windows) to Pi.
 
 ```Set-Service -Name sshd -StartupType Automatic```
 
-4\. Find Pi IP, run this on the Pi.
-
-```hostname -I```
-
-5\. SSH Login from Windows
-
-```ssh pi@192.168.8.xxx```
-
-6\. If pi says permission Denied, run this
-
-```sudo raspi-config```
-
-Interface Options -> SSH -> Enable
-
-7\. Generate SSH key on Windows if you don't have one.
+4\. Generate SSH key on Windows if you don't have one.
 
 ```Powershell, ssh-keygen```
 
-8\. Copy your Windows key to each raspberry pi. Open Git Bash
+5\. Copy your Windows key to each raspberry pi. Open Git Bash
 
 ```ssh-copy-id pi@192.168.8.xxx```
 
@@ -91,7 +77,7 @@ or
 
 ```scp ~/.ssh/id_rsa.pub pi@192.168.8.xxx:/home/pi/```
 
-9. On the Pi
+9. On the Pi (Optional? It logged in without doing this.)
 
 ```mkdir -p ~/.ssh```
 
@@ -119,9 +105,9 @@ Pi to Windows SSH:
 If it fails, do this.
 
 ```cat ~/.ssh/id_rsa.pub```
+ Copy it.
 
-or whatever name your ID is. Copy it.
-4. Paste it in the file here, then save. (Windows)
+4. Paste it in the file authorized_keys folder on Windows, then save. (Windows)
 
 ```notepad $env:USERPROFILE\.ssh\authorized_keys```
 
