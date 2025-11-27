@@ -17,11 +17,25 @@ This repository contains:
 
 
 
-1. Clone the Repo
-2. Install the Python Dependencies
-3. Connect the Raspberry Pi to a secure private network and assign it a static IP. 
-4. Create SSH Connections from the Central Computer to the PI and share their public keys to allow for seamless communication.
-5. Create Hostnames for the pi that match the station being used. E.g station-a
-6. Navigate to the Repo Folder on the local machine.
-7. Pip install -r requirements .txt
-8. Once all dependencies and packages are installed, Static IP's known. Change the 
+
+
+
+
+1. Prepare Raspberry Pi: Install Pi OS, enable SSH.
+   ```bash,sudo systemctl enable ssh
+   sudo systemctl start ssh```
+   
+2. Connect to Travel Router (or other Private Network).
+3. Update The System:
+   ```bash,sudo apt update \&\& sudo apt upgrade -y
+   sudo apt install python3-pip git -y```
+4. Clone the Repository
+5. Install the Python Dependencies
+   ```bash, pip3 install -r requirements.txt```
+6. Edit the Pi script (main.py) to set the Windows IP, username, and destination folder for screenshots: If not already done.
+7. Configure Pi's to have static IP's and adjust them in the Dashboard.py script if needed.
+8. Create SSH Connections from the Central Computer to the PI and share their public keys to allow for seamless communication.
+9. Create Hostnames for the pi that match the station being used. E.g station-a
+10. Navigate to the Repo Folder on the local machine.
+11. Pip install -r requirements .txt
+12. Once all dependencies and packages are installed, Static IP's known. Change the
