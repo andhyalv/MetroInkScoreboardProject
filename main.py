@@ -14,7 +14,7 @@ import platform
 # =========================
 WINDOWS_IP = "192.168.8.131"
 WINDOWS_USER = "andhy"
-WINDOWS_DEST_FOLDER = "C:/Users/andhy/MetroInkScoreboardProject/ScoreboardScreenshots/station_a"
+WINDOWS_DEST_FOLDER = "C:/Users/andhy/Andhy_Main/Code/Testing/MetroInkScoreboardProject/ScoreboardScreenshots/station_a"
 
 # =========================
 # Parse filename sent by API server
