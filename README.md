@@ -30,18 +30,26 @@ Configure Pi's to have static IP's and adjust them in the Dashboard.py script if
 
 3. Update The System:
 
-```bash,sudo apt update \&\& sudo apt upgrade -y sudo apt install python3-pip git -y```
+```sudo apt update sudo apt upgrade -y sudo apt install python3-pip git -y```
+
+
 
 4. Clone the Repository
+
+```git clone "HTTP from GitHub repository"```
+
 5. Install the Python Dependencies
 Create a virtual environment
+
 ```python3 -m venv venv```
+
 Activate it
+
 ```source venv/bin/activate```
 
  Now install packages
 ```pip install -r requirements.txt```
-
+```pip3 install flask paramiko scp opencv-python numpy```
 
 6. Edit the Pi script (main.py) to set the Windows IP, username, and destination folder for screenshots: If not already done.
 7. change the config.json script to match the id's of this station.
@@ -113,6 +121,4 @@ If it fails, do this.
 
 Make sure the authorized_keys file does not save as .txt!
 
-1. Navigate to the Repo Folder on the local machine.
-2. Pip install -r requirements .txt
-3. Once all dependencies and packages are installed, Static IP's known. Change the
+Run main.py -> listener.py and go through an trial run of multiple pis running scoreboard detection.
