@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metro Ink Dashboard</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
+  h1 { text-align: center; }
+  #stations { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
+  .station { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .station h2 { margin: 0 0 10px 0; font-size: 1.2em; }
+  .status { font-weight: bold; margin-bottom: 10px; display: block; }
+  .status.running { color: green; }
+  .status.idle { color: gray; }
+  button { padding: 5px 10px; margin-right: 5px; border: none; border-radius: 4px; cursor: pointer; }
+  button.start { background: #4caf50; color: #fff; }
+  button.stop { background: #f44336; color: #fff; }
+</style>
+</head>
+<body>
+
+<h1>Metro Ink Dashboard</h1>
+
+<div id="stations">
+  {% for name in pis %}
+  <div class="station" id="station-{{ name|replace(' ', '-') }}">
+    <h2>{{ name }}</h2>
+    <span class="status {% if statuses[name] == '🟢 Running' %}running{% else %}idle{% endif %}" id="status-{{ name|replace(' ', '-') }}">
+      {{ statuses[name] }}
+    </span>
+    <button class="start" onclick="controlStation('{{ name }}', 'start')">Start</button>
+    <button class="stop" onclick="controlStation('{{ name }}', 'stop')">Stop</button>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+const PIS = {{ pis | tojson }};
+
+// Send start/stop commands to a Pi
+function controlStation(station, action) {
+    const payload = { station: station, action: action };
+    fetch("/control", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.text())
+    .then(msg => {
+        console.log(`${station}: ${msg}`);
+        // Update status immediately based on the command sent
+        const statusEl = document.getElementById(`status-${station.replace(' ', '-')}`);
+        statusEl.textContent = action === "start" ? "🟢 Running" : "⚪ Idle";
+        statusEl.className = "status " + (action === "start" ? "running" : "idle");
+    })
+    .catch(err => console.error(err));
+}
+</script>
+
+</body>
+</html>

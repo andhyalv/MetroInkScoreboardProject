@@ -1,0 +1,84 @@
+## do this on a new pi.
+
+1)sudo apt update
+sudo apt install libqt5test5
+sudo apt install qt4-qmake qt4-dev-tools libqt4-dev
+
+2) Create Virtual Environment
+sudo apt install python3-venv
+python3 -m venv myenv
+
+3) Activate VEnvironment
+source myenv/bin/activate
+
+4) Install Packages:
+pip install opencv-python google-auth google-auth-oauthlib google-api-python-client numpy
+
+Connect to central dashboard
+pip install flask
+pip install flask-cors
+
+5. Copy the folders from the flashdrive.
+	(If Central Server) Make the dashboard.html available on desktop in a folder called template.
+	Put the folders on their own in the Desktop.
+
+6.Networking 
+Find IP's for the Central PC and Pi IPs.
+Central: BAsed on OS, usually IP Config.
+
+Get the PI IP's for the main dashboard and edit the dashboard.py file on the Central System 
+	to reflect that. 
+Option 1: Keep the DHCP IP's and do not disconnect or turn off pi.
+Option 2: Assign a static IPEdit the dhcpcd.conf file:
+
+	Open the terminal on the Pi and type:
+
+		sudo nano /etc/dhcpcd.conf
+
+	Scroll to the end of the file and add the following lines to configure the static IP:
+
+	For Ethernet (if you’re using a wired connection):	
+
+	interface eth0
+	static ip_address=192.168.1.100/24   # Replace with your desired static IP
+	static routers=192.168.1.1           # Replace with your router's IP (usually the gateway IP)
+	static domain_name_servers=8.8.8.8   # You can use Google's DNS or your router's DNS
+
+	For Wi-Fi (if you're using wireless):
+
+	interface wlan0
+	static ip_address=192.168.1.100/24   # Replace with your desired static IP
+	static routers=192.168.1.1           # Replace with your router's IP (usually the gateway IP)
+	static domain_name_servers=8.8.8.8   # You can use Google's DNS or your router's DNS
+
+		ip_address: The static IP address you want to assign to the Pi.
+
+		routers: The default gateway (usually your router’s IP).
+
+		domain_name_servers: The DNS server (use 8.8.8.8 for Google's DNS or your router’s DNS).
+
+	Save and exit the file:
+
+		Press Ctrl + X to close the editor.
+
+		Press Y to confirm saving the file.
+
+		Press Enter to confirm the filename.
+
+	Reboot the Raspberry Pi to apply the changes:
+
+		sudo reboot
+
+	3. Check the Static IP Address
+
+		After rebooting, you can check if the IP address was successfully set by typing:
+
+		hostname -I
+
+	This should display the static IP you configured for the Pi.
+
+
+
+Central Computer:
+Libraries: 
+pip install flask
