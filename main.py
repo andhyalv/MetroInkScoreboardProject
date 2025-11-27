@@ -8,13 +8,30 @@ import argparse
 import datetime
 import tempfile
 import platform
+import json
 
 # =========================
-# SSH SETTINGS
+# Load configuration
 # =========================
-WINDOWS_IP = "192.168.8.131"
-WINDOWS_USER = "andhy"
-WINDOWS_DEST_FOLDER = "C:/Users/andhy/Andhy_Main/Code/Testing/MetroInkScoreboardProject/ScoreboardScreenshots/station_a"
+PROJECT_FOLDER = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(PROJECT_FOLDER, "config.json")
+EXAMPLE_CONFIG_PATH = os.path.join(PROJECT_FOLDER, "config.example.json")
+
+if os.path.exists(CONFIG_PATH):
+    with open(CONFIG_PATH, "r") as f:
+        config = json.load(f)
+elif os.path.exists(EXAMPLE_CONFIG_PATH):
+    print("⚠️ config.json not found, using config.example.json")
+    with open(EXAMPLE_CONFIG_PATH, "r") as f:
+        config = json.load(f)
+else:
+    print("❌ No config.json or config.example.json found")
+    exit()
+
+WINDOWS_IP = config.get("windows_ip")
+WINDOWS_USER = config.get("windows_user")
+WINDOWS_DEST_FOLDER = config.get("windows_dest_folder")
+STATION_NAME = config.get("station_name", platform.node())
 
 # =========================
 # Parse filename sent by API server
@@ -28,7 +45,6 @@ event_abbr = initial_filename.split("_")[0]
 # =========================
 # Project reference image
 # =========================
-PROJECT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 REFERENCE_IMAGE_PATH = os.path.join(PROJECT_FOLDER, "scoreboard_reference.jpg")
 reference_img = cv2.imread(REFERENCE_IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
 if reference_img is None:
@@ -85,7 +101,6 @@ if capture is None:
 capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
-STATION_NAME = platform.node()
 print(f"🚀 Detection running on {STATION_NAME}")
 
 last_check = time.time()

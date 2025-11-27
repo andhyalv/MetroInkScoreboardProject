@@ -19,8 +19,15 @@ This repository contains:
 1. Prepare Raspberry Pi: Install Pi OS, enable SSH.
 
 ```bash, sudo systemctl enable ssh sudo systemctl start ssh```
+ If that doesn't work, do this and go to Interface.
+```sudo raspi-config```
+
+Change the host name as well to match the station name.
+```System Options  →  Hostname```
 
 2. Connect to Travel Router (or other Private Network).
+Configure Pi's to have static IP's and adjust them in the Dashboard.py script if needed on Central PC.
+
 3. Update The System:
 
 ```bash,sudo apt update \&\& sudo apt upgrade -y sudo apt install python3-pip git -y```
@@ -37,11 +44,7 @@ Activate it
 
 
 6. Edit the Pi script (main.py) to set the Windows IP, username, and destination folder for screenshots: If not already done.
-7. Configure Pi's to have static IP's and adjust them in the Dashboard.py script if needed on Central PC.
-8. Create Hostnames for the pi that match the station being used. E.g station-a
-```sudo raspi-config```
-
-```System Options  →  Hostname```
+7. change the config.json script to match the id's of this station.
 
 
 SSH from Central (Windows) to Pi.
