@@ -3,7 +3,12 @@ import subprocess, os, random, re
 
 app = Flask(__name__)
 
-SCRIPT_PATH = "/home/andhy1/ScoreboardProject/Detection/main.py"
+# Universal home directory
+HOME = os.path.expanduser("~")
+
+# main.py is in the SAME project folder
+SCRIPT_PATH = os.path.join(HOME, "MetroInkScoreboardProject", "main.py")
+
 process = None
 
 def sanitize(s):
@@ -26,10 +31,8 @@ def start():
     event_safe = sanitize(event_abbr)
     rand_num = random.randint(1000, 9999)
 
-    # Filename: event abbreviation + random number
     filename = f"{event_safe}_{rand_num}.png"
 
-    # Launch detection script with filename argument
     cmd = ["python3", SCRIPT_PATH, f"--filename={filename}"]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
