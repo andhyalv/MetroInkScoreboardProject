@@ -27,8 +27,14 @@ This repository contains:
 
 4. Clone the Repository
 5. Install the Python Dependencies
+Create a virtual environment
+```python3 -m venv venv```
+Activate it
+```source venv/bin/activate```
 
-```bash, pip3 install -r requirements.txt```
+ Now install packages
+```pip install -r requirements.txt```
+
 
 6. Edit the Pi script (main.py) to set the Windows IP, username, and destination folder for screenshots: If not already done.
 7. Configure Pi's to have static IP's and adjust them in the Dashboard.py script if needed on Central PC.
