@@ -8,40 +8,44 @@ import argparse
 import datetime
 
 # =========================
-# SSH SETTINGS
+# SSH SETTINGS (EDIT ONLY THESE)
 # =========================
-WINDOWS_USER = "andhy"
 WINDOWS_IP = "192.168.8.131"
-DEST_FOLDER = "C:/Users/andhy/Andhy_Main/Code/Completed_Utilities/MetroStats/ScoreboardScreenshots/station_a"
+WINDOWS_USER = "andhy"
+WINDOWS_DEST_FOLDER = r"C:/ScoreboardScreenshots/station_a"
 
 # =========================
-# Parse filename from Pi server (used only for event abbreviation)
+# Parse filename sent by API server
 # =========================
 parser = argparse.ArgumentParser()
 parser.add_argument("--filename", required=True)
 args = parser.parse_args()
 initial_filename = args.filename
-
-# Extract event abbreviation from initial filename
 event_abbr = initial_filename.split("_")[0]
 
+# Universal home directory
+HOME = os.path.expanduser("~")
+
+# Project folder (everything inside one folder)
+PROJECT_FOLDER = os.path.join(HOME, "MetroInkScoreboardProject")
+
 # =========================
-# SCP client
+# Reference image
+# =========================
+REFERENCE_IMAGE_PATH = os.path.join(PROJECT_FOLDER, "scoreboard_reference.jpg")
+reference_img = cv2.imread(REFERENCE_IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
+
+if reference_img is None:
+    print("❌ Missing scoreboard_reference.jpg at:", REFERENCE_IMAGE_PATH)
+    exit()
+
+# =========================
+# SSH + SCP
 # =========================
 ssh_client = paramiko.SSHClient()
 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 ssh_client.connect(WINDOWS_IP, username=WINDOWS_USER)
 scp_client = SCPClient(ssh_client.get_transport())
-
-# =========================
-# Reference image
-# =========================
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-REFERENCE_IMAGE_PATH = os.path.join(BASE_PATH, "scoreboard_reference.jpg")
-reference_img = cv2.imread(REFERENCE_IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
-if reference_img is None:
-    print("❌ Reference image missing:", REFERENCE_IMAGE_PATH)
-    exit()
 
 # =========================
 # Helper functions
@@ -65,36 +69,38 @@ def get_capture_device():
             print(f"[OK] Found capture device at index {i}")
             return cap
         cap.release()
-    print("❌ No capture device found.")
+    print("❌ No capture device found")
     return None
 
 def upload_to_windows(file_path):
     try:
-        scp_client.put(file_path, DEST_FOLDER)
-        print(f"📤 Uploaded {os.path.basename(file_path)} to Station A")
+        scp_client.put(file_path, WINDOWS_DEST_FOLDER)
+        print(f"📤 Uploaded: {os.path.basename(file_path)}")
     except Exception as e:
         print("❌ Upload failed:", e)
 
 # =========================
-# Capture init
+# Video capture setup
 # =========================
 capture = get_capture_device()
 if capture is None:
     exit()
+
 capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
+STATION_NAME = os.uname().nodename  # auto uses hostname
+print(f"🚀 Detection running on {STATION_NAME}")
+
 last_check = time.time()
-STATION_NAME = "Station A"
-print(f"🚀 {STATION_NAME} detection script running headlessly...")
 
 # =========================
-# Main loop
+# Main Loop
 # =========================
 while True:
     ret, frame = capture.read()
     if not ret:
-        print("❌ Frame grab failed.")
+        print("❌ No frame")
         break
 
     frame_resized = cv2.resize(frame, (1280, 720))
@@ -106,24 +112,21 @@ while True:
 
         if match:
             x, y = match
-            cropped = screen_gray[y:y+720, x:x+1280]  # adjust if needed
+            cropped = screen_gray[y:y+720, x:x+1280]
 
-            # Generate new filename for each capture
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")  # up to microseconds
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             filename = f"{event_abbr}_{timestamp}.png"
 
-            # Save locally and upload
             local_path = os.path.join("/tmp", filename)
             cv2.imwrite(local_path, cropped)
             upload_to_windows(local_path)
             os.remove(local_path)
-
         else:
-            print("❌ Reference not found.")
+            print("❌ Reference not found")
 
         last_check = time.time()
 
 capture.release()
 scp_client.close()
 ssh_client.close()
-print("🛑 Capture stopped.")
+print("🛑 Stopped.")
