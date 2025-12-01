@@ -25,6 +25,7 @@ Check firewall status to make sure Pi isn't blocking SSH at port 22
 ```sudo ufw status verbose```
 If it is, then run this.
 ```sudo ufw allow ssh```
+```sudo ufw allow 5001/tcp```
 
 Change the host name as well to match the station name.
 ```System Options  →  Hostname```
@@ -59,7 +60,7 @@ Activate it
 ```pip install -r requirements.txt```
 ```pip3 install flask paramiko scp opencv-python numpy```
 
-6. Edit the Pi script (main.py) to set the Windows IP, username, and destination folder for screenshots: If not already done.
+6. Edit the config.json example file to set the Windows IP, username, and destination folder for screenshots and set it to config.json If not already done.
 7. change the config.json script to match the id's of this station.
 
 
