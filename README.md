@@ -21,6 +21,10 @@ This repository contains:
 ```bash, sudo systemctl enable ssh sudo systemctl start ssh```
  If that doesn't work, do this and go to Interface.
 ```sudo raspi-config```
+Check firewall status to make sure Pi isn't blocking SSH at port 22
+```sudo ufw status verbose```
+If it is, then run this.
+```sudo ufw allow ssh```
 
 Change the host name as well to match the station name.
 ```System Options  →  Hostname```
@@ -28,17 +32,21 @@ Change the host name as well to match the station name.
 2. Connect to Travel Router (or other Private Network).
 Configure Pi's to have static IP's and adjust them in the Dashboard.py script if needed on Central PC.
 
-3. Update The System:
+3. Connect via SSH from Central Device. 
+```ssh username@IP~~~
+
+
+4. Update The System:
 
 ```sudo apt update sudo apt upgrade -y sudo apt install python3-pip git -y```
 
 
 
-4. Clone the Repository
+5. Clone the Repository
 
 ```git clone "HTTP from GitHub repository"```
 
-5. Install the Python Dependencies
+6. Install the Python Dependencies
 Create a virtual environment
 
 ```python3 -m venv venv```
