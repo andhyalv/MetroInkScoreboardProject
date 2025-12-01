@@ -33,7 +33,7 @@ Change the host name as well to match the station name.
 Configure Pi's to have static IP's and adjust them in the Dashboard.py script if needed on Central PC.
 
 3. Connect via SSH from Central Device. 
-```ssh username@IP~~~
+```ssh username@IP```
 
 
 4. Update The System:
