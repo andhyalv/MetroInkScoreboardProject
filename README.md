@@ -33,36 +33,6 @@ Change the host name as well to match the station name.
 2. Connect to Travel Router (or other Private Network).
 Configure Pi's to have static IP's and adjust them in the Dashboard.py script if needed on Central PC.
 
-3. Connect via SSH from Central Device. 
-```ssh username@IP```
-
-
-4. Update The System:
-
-```sudo apt update sudo apt upgrade -y sudo apt install python3-pip git -y```
-
-
-
-5. Clone the Repository
-
-```git clone "HTTP from GitHub repository"```
-
-6. Install the Python Dependencies
-Create a virtual environment
-
-```python3 -m venv venv```
-
-Activate it
-
-```source venv/bin/activate```
-
- Now install packages
-```pip install -r requirements.txt```
-```pip3 install flask paramiko scp opencv-python numpy```
-
-6. Edit the config.json example file to set the Windows IP, username, and destination folder for screenshots and set it to config.json If not already done.
-7. change the config.json script to match the id's of this station.
-
 
 SSH from Central (Windows) to Pi. IF your key is already established, skip to step 4.
 
@@ -129,5 +99,38 @@ If it fails, do this.
 ```notepad $env:USERPROFILE\.ssh\authorized_keys```
 
 Make sure the authorized_keys file does not save as .txt!
+
+
+
+1. Connect via SSH from Central Device. 
+```ssh username@IP```
+
+
+2. Update The System:
+
+```sudo apt update sudo apt upgrade -y sudo apt install python3-pip git -y```
+
+
+3. Clone the Repository
+
+```git clone "HTTP from GitHub repository"```
+
+4. Install the Python Dependencies
+Create a virtual environment
+
+```python3 -m venv venv```
+
+Activate it
+
+```source venv/bin/activate```
+
+ Now install packages
+```pip install -r requirements.txt```
+```pip3 install flask paramiko scp opencv-python numpy```
+
+5. Edit the config.json example file to set the Windows IP, username, and destination folder for screenshots and set it to config.json If not already done.
+6. change the config.json script to match the id's of this station.
+
+
 
 Run main.py -> listener.py and go through an trial run of multiple pis running scoreboard detection.
