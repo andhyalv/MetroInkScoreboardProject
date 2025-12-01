@@ -132,5 +132,4 @@ Activate it
 6. change the config.json script to match the id's of this station.
 
 
-
-Run main.py -> listener.py and go through an trial run of multiple pis running scoreboard detection.
+Run Central_dashboard.py from the Main PC and pi_server.py from the Pi. Test out if screen capture works through dashboard control without issue.
