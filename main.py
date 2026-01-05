@@ -21,11 +21,11 @@ if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH, "r") as f:
         config = json.load(f)
 elif os.path.exists(EXAMPLE_CONFIG_PATH):
-    print("⚠️ config.json not found, using config.example.json")
+    print(" config.json not found, using config.example.json")
     with open(EXAMPLE_CONFIG_PATH, "r") as f:
         config = json.load(f)
 else:
-    print("❌ No config.json or config.example.json found")
+    print(" No config.json or config.example.json found")
     exit()
 
 WINDOWS_IP = config.get("windows_ip")
@@ -48,7 +48,7 @@ event_abbr = initial_filename.split("_")[0]
 REFERENCE_IMAGE_PATH = os.path.join(PROJECT_FOLDER, "scoreboard_reference.jpg")
 reference_img = cv2.imread(REFERENCE_IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
 if reference_img is None:
-    print("❌ Missing scoreboard_reference.jpg at:", REFERENCE_IMAGE_PATH)
+    print(" Missing scoreboard_reference.jpg at:", REFERENCE_IMAGE_PATH)
     exit()
 
 # =========================
@@ -81,15 +81,15 @@ def get_capture_device():
             print(f"[OK] Found capture device at index {i}")
             return cap
         cap.release()
-    print("❌ No capture device found")
+    print(" No capture device found")
     return None
 
 def upload_to_windows(file_path):
     try:
         scp_client.put(file_path, WINDOWS_DEST_FOLDER)
-        print(f"📤 Uploaded: {os.path.basename(file_path)}")
+        print(f" Uploaded: {os.path.basename(file_path)}")
     except Exception as e:
-        print("❌ Upload failed:", e)
+        print(" Upload failed:", e)
 
 # =========================
 # Video capture setup
@@ -101,7 +101,7 @@ if capture is None:
 capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
-print(f"🚀 Detection running on {STATION_NAME}")
+print(f" Detection running on {STATION_NAME}")
 
 last_check = time.time()
 
@@ -111,7 +111,7 @@ last_check = time.time()
 while True:
     ret, frame = capture.read()
     if not ret:
-        print("❌ No frame")
+        print(" No frame")
         break
 
     frame_resized = cv2.resize(frame, (1280, 720))
@@ -133,11 +133,11 @@ while True:
             upload_to_windows(local_path)
             os.remove(local_path)
         else:
-            print("❌ Reference not found")
+            print(" Reference not found")
 
         last_check = time.time()
 
 capture.release()
 scp_client.close()
 ssh_client.close()
-print("🛑 Stopped.")
+print(" Stopped.")
