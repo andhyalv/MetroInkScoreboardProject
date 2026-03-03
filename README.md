@@ -1,19 +1,15 @@
-\# Metro Ink Splatoon Scoreboard Capture for in person events.
+# Metro Ink Splatoon Scoreboard Capture for in person events.
 
-This project seeks to make it easier to capture stats for in person Splatoon events. As there is no native stat capturing or replay system built into the LAN functionality of the game, this solution for capturing stats was made.
-
+This project seeks to make it easier to capture stats for in person Splatoon events. As there is no native stat capturing or replay system built into the LAN functionality of the game, this solution for capturing stats via in game scoreboard screen capture was made. Ideally this can work for future iterations of the game if necessary. Hopefully it's not necessary!
 
 
 This repository contains:
-* A script to capture screenshots of scoreboards as they appear in game, then upload those screenshots to a central Host PC. 
-* A Flask server to connect the devices capturing in game scoreboards, and a central dashboard controlling all station devices
-* Central Flask server to control all Raspberry Pi's script running.
-* Screenshot uploading to Windows (Central) PC via SCP
-* Scripts and dependencies for easy setup on new Pi systems.
+* A script to capture screenshots of scoreboards as they appear in game (main.py), then upload those screenshots to a central Host PC. 
+* A Flask server to connect the devices capturing in game scoreboards with a central dashboard controlling all station devices.
+* File pulling requests from Central PC to Scoreboard Capturing Devices, handled via the dashboard.
+* Guide to setup Raspberry Pi's for scoreboard capture, and the Central PC to host a dashboard that controls the Pi's activity. 
 
-
-
-\## Central PC Setup
+## Central PC Setup
 1. Ensure it can run SSH Server & has Public Keys. See Pi Setup Section for more info.
 2. Install dependencies for Dashboard Python code.
 ```pip install flask paramiko requests scp```
@@ -22,7 +18,7 @@ This repository contains:
 4. Adjust Station names, General Pi Username (used by all Pi's), Pi Static IP Addresses and Folder Destination in CentralDashboard.py
 5. Run CentralDashboard.py, follow the ip to the dashboard.
 
-\## Raspberry Pi Scoreboard Detection Setup
+## Raspberry Pi Scoreboard Detection Setup
 
 Prepare Raspberry Pi: 
 First Time: Install Pi OS, enable SSH. Use your central PC's Public Key. 'id_ed25519.pub' found in /.ssh folder. If it doesn't exist, skip to
