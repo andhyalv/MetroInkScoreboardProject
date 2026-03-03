@@ -1,14 +1,11 @@
 import os
 import time
 import cv2
-import random
-import paramiko
-from scp import SCPClient
 import argparse
 import datetime
-import tempfile
 import platform
 import json
+import tempfile
 
 # =========================
 # Load configuration
@@ -21,20 +18,20 @@ if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH, "r") as f:
         config = json.load(f)
 elif os.path.exists(EXAMPLE_CONFIG_PATH):
-    print(" config.json not found, using config.example.json")
+    print("⚠️ config.json not found, using config.example.json")
     with open(EXAMPLE_CONFIG_PATH, "r") as f:
         config = json.load(f)
 else:
-    print(" No config.json or config.example.json found")
+    print("❌ No config.json or config.example.json found")
     exit()
 
-WINDOWS_IP = config.get("windows_ip")
-WINDOWS_USER = config.get("windows_user")
-WINDOWS_DEST_FOLDER = config.get("windows_dest_folder")
 STATION_NAME = config.get("station_name", platform.node())
+LOCAL_SAVE_FOLDER = config.get("local_save_folder", os.path.join(PROJECT_FOLDER, "captures"))
+
+os.makedirs(LOCAL_SAVE_FOLDER, exist_ok=True)
 
 # =========================
-# Parse filename sent by API server
+# Parse filename/event info from API server
 # =========================
 parser = argparse.ArgumentParser()
 parser.add_argument("--filename", required=True)
@@ -48,16 +45,8 @@ event_abbr = initial_filename.split("_")[0]
 REFERENCE_IMAGE_PATH = os.path.join(PROJECT_FOLDER, "scoreboard_reference.jpg")
 reference_img = cv2.imread(REFERENCE_IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
 if reference_img is None:
-    print(" Missing scoreboard_reference.jpg at:", REFERENCE_IMAGE_PATH)
+    print("❌ Missing scoreboard_reference.jpg at:", REFERENCE_IMAGE_PATH)
     exit()
-
-# =========================
-# SSH + SCP setup
-# =========================
-ssh_client = paramiko.SSHClient()
-ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh_client.connect(WINDOWS_IP, username=WINDOWS_USER)
-scp_client = SCPClient(ssh_client.get_transport())
 
 # =========================
 # Helper functions
@@ -81,15 +70,8 @@ def get_capture_device():
             print(f"[OK] Found capture device at index {i}")
             return cap
         cap.release()
-    print(" No capture device found")
+    print("❌ No capture device found")
     return None
-
-def upload_to_windows(file_path):
-    try:
-        scp_client.put(file_path, WINDOWS_DEST_FOLDER)
-        print(f" Uploaded: {os.path.basename(file_path)}")
-    except Exception as e:
-        print(" Upload failed:", e)
 
 # =========================
 # Video capture setup
@@ -101,8 +83,7 @@ if capture is None:
 capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
-print(f" Detection running on {STATION_NAME}")
-
+print(f"🚀 Detection running on {STATION_NAME}")
 last_check = time.time()
 
 # =========================
@@ -111,13 +92,13 @@ last_check = time.time()
 while True:
     ret, frame = capture.read()
     if not ret:
-        print(" No frame")
+        print("❌ No frame")
         break
 
     frame_resized = cv2.resize(frame, (1280, 720))
     screen_gray = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
 
-    if time.time() - last_check >= 3:
+    if time.time() - last_check >= 3:  # check every 3 seconds
         resized_ref = resize_reference(reference_img, 1280, 720)
         match = find_reference_location(screen_gray, resized_ref)
 
@@ -126,18 +107,15 @@ while True:
             cropped = screen_gray[y:y+720, x:x+1280]
 
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-            filename = f"{event_abbr}_{timestamp}.png"
+            filename = f"{STATION_NAME}_{event_abbr}_{timestamp}.png"
+            local_path = os.path.join(LOCAL_SAVE_FOLDER, filename)
 
-            local_path = os.path.join(tempfile.gettempdir(), filename)
             cv2.imwrite(local_path, cropped)
-            upload_to_windows(local_path)
-            os.remove(local_path)
+            print(f"💾 Saved locally: {filename}")
         else:
-            print(" Reference not found")
+            print("❌ Reference not found")
 
         last_check = time.time()
 
 capture.release()
-scp_client.close()
-ssh_client.close()
-print(" Stopped.")
+print("🛑 Stopped.")
