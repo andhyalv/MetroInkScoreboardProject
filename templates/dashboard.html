@@ -16,6 +16,7 @@
   button { padding: 5px 10px; margin-right: 5px; border: none; border-radius: 4px; cursor: pointer; }
   button.start { background: #4caf50; color: #fff; }
   button.stop { background: #f44336; color: #fff; }
+  button.pull { background: #2196f3; color: #fff; }
 </style>
 </head>
 <body>
@@ -31,6 +32,8 @@
     </span>
     <button class="start" onclick="controlStation('{{ name }}', 'start')">Start</button>
     <button class="stop" onclick="controlStation('{{ name }}', 'stop')">Stop</button>
+    <button class="pull" onclick="pullFiles('{{ name }}')">📥 Pull Files</button>
+    <span id="pull-status-{{ name|replace(' ', '-') }}" style="margin-left:5px;"></span>
   </div>
   {% endfor %}
 </div>
@@ -49,12 +52,30 @@ function controlStation(station, action) {
     .then(res => res.text())
     .then(msg => {
         console.log(`${station}: ${msg}`);
-        // Update status immediately based on the command sent
         const statusEl = document.getElementById(`status-${station.replace(' ', '-')}`);
         statusEl.textContent = action === "start" ? "🟢 Running" : "⚪ Idle";
         statusEl.className = "status " + (action === "start" ? "running" : "idle");
     })
     .catch(err => console.error(err));
+}
+
+// Pull files from a Pi to its designated folder
+function pullFiles(station) {
+    const statusEl = document.getElementById(`pull-status-${station.replace(' ', '-')}`);
+    statusEl.textContent = "⏳ Pulling...";
+    
+    fetch(`/pull/${encodeURIComponent(station)}`, { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data.message);
+        statusEl.textContent = data.message;
+        setTimeout(() => { statusEl.textContent = ""; }, 5000);
+    })
+    .catch(err => {
+        console.error(err);
+        statusEl.textContent = "❌ Error pulling files";
+        setTimeout(() => { statusEl.textContent = ""; }, 5000);
+    });
 }
 </script>
 

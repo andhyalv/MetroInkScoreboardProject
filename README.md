@@ -13,29 +13,27 @@ This repository contains:
 
 
 
-\## Setup
+\## Central PC Setup
+1. Ensure it can run SSH Server & has Public Keys. See Pi Setup Section for more info.
+2. Install dependencies for Dashboard Python code.
+```pip install flask paramiko requests scp```
+3. Import Github repo.
+4. Connect to Travel Router / Private Network and access the dashboard to modify IP Address Settings. Static IP's.
+4. Adjust Station names, General Pi Username (used by all Pi's), Pi Static IP Addresses and Folder Destination in CentralDashboard.py
+5. Run CentralDashboard.py, follow the ip to the dashboard.
 
+\## Raspberry Pi Scoreboard Detection Setup
 
-1. Prepare Raspberry Pi: Install Pi OS, enable SSH.
+Prepare Raspberry Pi: 
+First Time: Install Pi OS, enable SSH. Use your central PC's Public Key. 'id_ed25519.pub' found in /.ssh folder. If it doesn't exist, skip to
+SSH Server Setup below.
 
-```bash, sudo systemctl enable ssh sudo systemctl start ssh```
- If that doesn't work, do this and go to Interface.
-```sudo raspi-config```
-Check firewall status to make sure Pi isn't blocking SSH at port 22
-```sudo ufw status verbose```
-If it is, then run this.
-```sudo ufw allow ssh```
-```sudo ufw allow 5001/tcp```
+After First Time/Updates: Mirror Original Pi SD to other Pi SD Cards.
 
-Change the host name as well to match the station name.
-```System Options  →  Hostname```
-
-2. Connect to Travel Router (or other Private Network).
+Connect Wifi to Travel Router (or other Private Network).
 Configure Pi's to have static IP's and adjust them in the Dashboard.py script if needed on Central PC.
 
-
 SSH from Central (Windows) to Pi. IF your key is already established, skip to step 4.
-
 1. Open Powershell and run
 
 ```Powershell, Get-Service sshd```
@@ -56,59 +54,16 @@ SSH from Central (Windows) to Pi. IF your key is already established, skip to st
 
 ```Powershell, ssh-keygen```
 
-5\. Copy your Windows key to each raspberry pi. Open Git Bash
+5\. Copy the public key from Windows to your PI OS IMage Setup.
 
-```ssh-copy-id pi@192.168.8.xxx```
-
-or 
-
-```scp ~/.ssh/id_rsa.pub pi@192.168.8.xxx:/home/pi/```
-
-9. On the Pi (Optional? It logged in without doing this.)
-
-```mkdir -p ~/.ssh```
-
-```cat ~/id_rsa.pub >> ~/.ssh/authorized_keys```
-
-```chmod 600 ~/.ssh/authorized_keys```
-
-```rm ~/id_rsa.pub```
-
-Pi to Windows SSH:
-1. Find Windows IP
-
-```ipconfig```
-
-2. make .ssh folder if not already there.
-
-```mkdir $env:USERPROFILE\.ssh```
-
-3. Copy pi Keys to windows (on pi)
-
-```ssh-keygen```
-
-```ssh-copy-id yourwindowsusername@192.168.8.131```
-
-If it fails, do this.
-
-```cat ~/.ssh/id_rsa.pub```
- Copy it.
-
-4. Paste it in the file authorized_keys folder on Windows, then save. (Windows)
-
-```notepad $env:USERPROFILE\.ssh\authorized_keys```
-
-Make sure the authorized_keys file does not save as .txt!
-
-
-
-1. Connect via SSH from Central Device. 
-```ssh username@IP```
-
+SSH from Windows to Pi.
 
 2. Update The System:
 
-```sudo apt update sudo apt upgrade -y sudo apt install python3-pip git -y```
+```sudo apt update && sudo apt upgrade -y```
+
+
+```sudo apt install python3-venv python3-opencv v4l-utils -y```
 
 
 3. Clone the Repository
@@ -125,6 +80,11 @@ Activate it
 ```source venv/bin/activate```
 
  Now install packages
+ sudo apt install python3-venv python3-opencv v4l-utils -y
+ 
+ python3 -m venv venv
+source venv/bin/activate
+pip install opencv-python paramiko scp flask
 ```pip install -r requirements.txt```
 ```pip3 install flask paramiko scp opencv-python numpy```
 
