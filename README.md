@@ -1,41 +1,35 @@
-\# Metro Ink Splatoon Scoreboard Capture for in person events.
+# Metro Ink Splatoon Scoreboard Capture for in person events.
 
-This project seeks to make it easier to capture stats for in person Splatoon events. As there is no native stat capturing or replay system built into the LAN functionality of the game, this solution for capturing stats was made.
-
+This project seeks to make it easier to capture stats for in person Splatoon events. As there is no native stat capturing or replay system built into the LAN functionality of the game, this solution for capturing stats via in game scoreboard screen capture was made. Ideally this can work for future iterations of the game if necessary. Hopefully it's not necessary!
 
 
 This repository contains:
-* A script to capture screenshots of scoreboards as they appear in game, then upload those screenshots to a central Host PC. 
-* A Flask server to connect the devices capturing in game scoreboards, and a central dashboard controlling all station devices
-* Central Flask server to control all Raspberry Pi's script running.
-* Screenshot uploading to Windows (Central) PC via SCP
-* Scripts and dependencies for easy setup on new Pi systems.
+* A script to capture screenshots of scoreboards as they appear in game (main.py), then upload those screenshots to a central Host PC. 
+* A Flask server to connect the devices capturing in game scoreboards with a central dashboard controlling all station devices.
+* File pulling requests from Central PC to Scoreboard Capturing Devices, handled via the dashboard.
+* Guide to setup Raspberry Pi's for scoreboard capture, and the Central PC to host a dashboard that controls the Pi's activity. 
 
+## Central PC Setup
+1. Ensure it can run SSH Server & has Public Keys. See Pi Setup Section for more info.
+2. Install dependencies for Dashboard Python code.
+```pip install flask paramiko requests scp```
+3. Import Github repo.
+4. Connect to Travel Router / Private Network and access the dashboard to modify IP Address Settings. Static IP's.
+4. Adjust Station names, General Pi Username (used by all Pi's), Pi Static IP Addresses and Folder Destination in CentralDashboard.py
+5. Run CentralDashboard.py, follow the ip to the dashboard.
 
+## Raspberry Pi Scoreboard Detection Setup
 
-\## Setup
+Prepare Raspberry Pi: 
+First Time: Install Pi OS, enable SSH. Use your central PC's Public Key. 'id_ed25519.pub' found in /.ssh folder. If it doesn't exist, skip to
+SSH Server Setup below.
 
+After First Time/Updates: Mirror Original Pi SD to other Pi SD Cards.
 
-1. Prepare Raspberry Pi: Install Pi OS, enable SSH.
-
-```bash, sudo systemctl enable ssh sudo systemctl start ssh```
- If that doesn't work, do this and go to Interface.
-```sudo raspi-config```
-Check firewall status to make sure Pi isn't blocking SSH at port 22
-```sudo ufw status verbose```
-If it is, then run this.
-```sudo ufw allow ssh```
-```sudo ufw allow 5001/tcp```
-
-Change the host name as well to match the station name.
-```System Options  →  Hostname```
-
-2. Connect to Travel Router (or other Private Network).
+Connect Wifi to Travel Router (or other Private Network).
 Configure Pi's to have static IP's and adjust them in the Dashboard.py script if needed on Central PC.
 
-
 SSH from Central (Windows) to Pi. IF your key is already established, skip to step 4.
-
 1. Open Powershell and run
 
 ```Powershell, Get-Service sshd```
@@ -56,59 +50,16 @@ SSH from Central (Windows) to Pi. IF your key is already established, skip to st
 
 ```Powershell, ssh-keygen```
 
-5\. Copy your Windows key to each raspberry pi. Open Git Bash
+5\. Copy the public key from Windows to your PI OS IMage Setup.
 
-```ssh-copy-id pi@192.168.8.xxx```
-
-or 
-
-```scp ~/.ssh/id_rsa.pub pi@192.168.8.xxx:/home/pi/```
-
-9. On the Pi (Optional? It logged in without doing this.)
-
-```mkdir -p ~/.ssh```
-
-```cat ~/id_rsa.pub >> ~/.ssh/authorized_keys```
-
-```chmod 600 ~/.ssh/authorized_keys```
-
-```rm ~/id_rsa.pub```
-
-Pi to Windows SSH:
-1. Find Windows IP
-
-```ipconfig```
-
-2. make .ssh folder if not already there.
-
-```mkdir $env:USERPROFILE\.ssh```
-
-3. Copy pi Keys to windows (on pi)
-
-```ssh-keygen```
-
-```ssh-copy-id yourwindowsusername@192.168.8.131```
-
-If it fails, do this.
-
-```cat ~/.ssh/id_rsa.pub```
- Copy it.
-
-4. Paste it in the file authorized_keys folder on Windows, then save. (Windows)
-
-```notepad $env:USERPROFILE\.ssh\authorized_keys```
-
-Make sure the authorized_keys file does not save as .txt!
-
-
-
-1. Connect via SSH from Central Device. 
-```ssh username@IP```
-
+SSH from Windows to Pi.
 
 2. Update The System:
 
-```sudo apt update sudo apt upgrade -y sudo apt install python3-pip git -y```
+```sudo apt update && sudo apt upgrade -y```
+
+
+```sudo apt install python3-venv python3-opencv v4l-utils -y```
 
 
 3. Clone the Repository
@@ -125,6 +76,11 @@ Activate it
 ```source venv/bin/activate```
 
  Now install packages
+ sudo apt install python3-venv python3-opencv v4l-utils -y
+ 
+ python3 -m venv venv
+source venv/bin/activate
+pip install opencv-python paramiko scp flask
 ```pip install -r requirements.txt```
 ```pip3 install flask paramiko scp opencv-python numpy```
 
