@@ -2,7 +2,10 @@ from flask import Flask, render_template, request, jsonify
 import paramiko
 import requests
 import os
+import time
+import threading
 from scp import SCPClient
+
 app = Flask(__name__)
 
 PI_FOLDERS = {
@@ -14,62 +17,62 @@ PI_FOLDERS = {
     "Mainstage": r"C:\Users\andhy\Andhy_Main\Code\Completed_Utilities\MetroStats\ScoreboardScreenshots\mainstage"
 }
 
-
 for folder in PI_FOLDERS.values():
     os.makedirs(folder, exist_ok=True)
 
-# Pi IP addresses
 PIS = {
     "Station A": "192.168.8.111",
     "Station B": "192.168.8.198",
     "Station C": "192.168.8.200",
     "Station D": "192.168.8.143",
-    "Station E": "192.168.8.234",
+    "Station E": "192.168.8.230",
     "Mainstage": "192.168.8.180"
 }
 
-EVENT_INFO = {}  # Holds current event info
+EVENT_INFO = {}
 
 # ========== Helper: Pull files from a Pi ==========
 def pull_files(station):
-    import paramiko
-    from scp import SCPClient
     ip = PIS[station]
     dest_folder = PI_FOLDERS[station]
-
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(ip, username="metro")  # your Pi username
+        ssh.connect(ip, username="metro")
         scp = SCPClient(ssh.get_transport())
-
         remote_folder = "/home/metro/MetroInkScoreboardProject/captures/"
         stdin, stdout, stderr = ssh.exec_command(f"ls {remote_folder}*.png")
         files = stdout.read().decode().splitlines()
-
         if not files:
             scp.close()
             ssh.close()
             return f"⚠️ No PNG files found in {remote_folder}"
-
-        # Filter out files that already exist locally
         new_files = [f for f in files if not os.path.exists(os.path.join(dest_folder, os.path.basename(f)))]
-
         if not new_files:
             scp.close()
             ssh.close()
             return f"✅ No new files to pull for {station}"
-
         for file in new_files:
             scp.get(file, dest_folder)
-
         scp.close()
         ssh.close()
         return f"✅ Pulled {len(new_files)} new files for {station} into {dest_folder}"
-
     except Exception as e:
         return f"❌ Failed to pull files for {station}: {e}"
-        
+
+# ========== Auto pull loop ==========
+def auto_pull_loop():
+    while True:
+        for station in PIS:
+            try:
+                result = pull_files(station)
+                print(f"[auto-pull] {result}")
+            except Exception as e:
+                print(f"[auto-pull] Error for {station}: {e}")
+        time.sleep(20)
+
+threading.Thread(target=auto_pull_loop, daemon=True).start()
+
 # ========== Routes ==========
 @app.route("/")
 def home():
@@ -97,12 +100,9 @@ def control():
     data = request.json
     station = data["station"]
     action = data["action"]
-
     if station not in PIS:
         return "Invalid station", 400
-
     ip = PIS[station]
-
     try:
         res = requests.post(f"http://{ip}:5001/{action}", json=data, timeout=3)
         return res.text
